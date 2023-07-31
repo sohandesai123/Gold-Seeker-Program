@@ -1,0 +1,301 @@
+
+<!DOCTYPE html>
+<html lang='en' class=''>
+
+<head>
+
+  <meta charset='UTF-8'>
+  <title>AI Agent</title>
+
+  <meta name="robots" content="noindex">
+
+  <!--link rel="shortcut icon" type="image/x-icon" href="https://cpwebassets.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico">
+  <link rel="mask-icon" href="https://cpwebassets.codepen.io/assets/favicon/logo-pin-b4b4269c16397ad2f0f7a01bcdf513a1994f4c94b8af2f191c09eb0d601762b1.svg" color="#111">
+  <link rel="canonical" href="https://codepen.io/vaibhavarora/pen/xWZQoR"-->
+
+  
+  
+
+  <style id="INLINE_PEN_STYLESHEET_ID">
+    body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffeb3b;
+  flex-direction: column;
+  font-family: Helvetica;
+}
+
+#gameContainer {
+  display: grid;
+  grid-gap: 20px;
+}
+
+/* CSS */
+.button-1 {
+  background-color: #5cea4c;
+  border-radius: 8px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  outline: none;
+  padding: 10px 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  transition: color 100ms;
+  vertical-align: baseline;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button-1:hover,
+.button-1:focus {
+  background-color: #F082AC;
+}
+/*button*/
+
+#gameContainer.easy {
+  grid-template-columns: 100px 100px 100px 100px 100px;
+}
+
+/*#gameContainer.medium {
+  grid-template-columns: 100px 100px 100px 100px 100px 100px 100px 100px; 
+}
+
+#gameContainer.hard {
+  grid-template-columns: 100px 100px 100px 100px 100px 100px 100px 100px 100px 100px 100px 100px 100px 100px 100px 100px;
+}*/
+
+#gameContainer.infinite {
+  grid-template-columns: 100px 100px 100px 100px 100px;
+}
+
+.tile {
+  width: 100px;
+  height: 100px;
+  background: #efefef;
+}
+
+.highlighted-tile {
+  background: #3399ff;
+  transition: ease-in all 0.25s;
+}
+.highlighted-tile2 {
+  background: #33ff77;
+  transition: ease-in all 0.25s;
+}
+
+.title{
+  font-family: Verdana;
+  text-shadow: 1px 1px 1px #efefef;
+}
+
+.scoreBoard{
+  position: fixed;
+  will-change: transform;
+  top: 0;
+  right: 0;
+  width: 100px;
+  background: black;
+  font-family: Courier;
+  color:white;
+  font-size: 60px;
+  text-align: center;
+  text-shadow: 1px 1px 10px #3399ff;
+}
+
+.scoreBoard:before{
+  content: "Score ";
+  font-size: 20px;
+  line-height: 20px;
+}
+  </style>
+
+  
+<!--script src="https://cpwebassets.codepen.io/assets/editor/iframe/iframeConsoleRunner-6bce046e7128ddf9391ccf7acbecbf7ce0cbd7b6defbeb2e217a867f51485d25.js"></script>
+<script src="https://cpwebassets.codepen.io/assets/editor/iframe/iframeRefreshCSS-44fe83e49b63affec96918c9af88c0d80b209a862cf87ac46bc933074b8c557d.js"></script>
+<script src="https://cpwebassets.codepen.io/assets/editor/iframe/iframeRuntimeErrors-4f205f2c14e769b448bcf477de2938c681660d5038bc464e3700256713ebe261.js"></script-->
+</head>
+
+<body>
+  <!--h1 class="title">AI Agent</h1-->
+<h2>&emsp;&emsp;&emsp;&emsp; Choose Mine Tiles <br><span>Place 4 Around the Gold and Press Start</span>.
+</h2>
+
+  <button class="button-1" role="button" onclick="func()">Start</button>
+
+<br>
+<div id="gameContainer">
+</div>
+</body>
+</html>
+<!--Socketio-->
+<script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+<!--jQuery-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script defer>
+function TileGame(oDomContainer, difficulty) {
+    // Initial score
+    this.score = 0;
+    this.difficulty = difficulty;
+    this.oDomContainer = oDomContainer;
+    switch (difficulty) {
+      case "easy":
+        this.size = 5;
+        console.log(2);
+        break;
+      case "medium":
+        this.size = 8;
+        break;
+      case "hard":
+        this.size = 12;
+        break;
+      case "infinite":
+        this.size = 1000;
+        break;
+    }
+  
+    // Generate intiial tiles
+    console.log(3);
+    this.generateTiles(); 
+  
+    //this.highlightTile();
+    // Attach event handlers to tiles
+    console.log(5);
+    this.initEvents();
+    // Generate UI Elements
+    //this.generateUIComponents();
+  }
+  
+  /*TileGame.prototype.addScore = function(){
+    this.score = this.score + 1;
+    this.scoreBoard.innerHTML = this.score;
+  }
+  
+  TileGame.prototype.subtractScore = function(){
+    this.score = this.score - 1;
+    this.scoreBoard.innerHTML = this.score;
+  }
+   */
+  TileGame.prototype.initEvents = function(){
+    //document.addEventListener("DOMContentLoaded", function(event) { 
+    // put your javascript code here
+    console.log(10);
+    this.oDomContainer.addEventListener('click', function(event){
+      var oTarget = event.target;
+      var t = oTarget.tabIndex;
+      //console.log("pls");
+      //console.log(t);
+      oTarget.className='highlighted-tile';
+      //this.oDomContainer.querySelector(".tile:nth-of-type("+t+")").className = 'highlighted-tile';
+      const socket = io();
+      socket.emit('press',{'action':t});
+      //console.log(oTarget.className.indexOf("tile"));
+    }
+ )
+  }
+  //)
+ // }
+
+ /*     if(oTarget.className.indexOf("tile") !== -1){
+        // Clicked on a tile
+        if(oTarget.className.indexOf("highlighted-tile") !== -1){
+          // Clicked on correct tile
+          this.addScore();
+        }
+        else{
+
+          // Clicked on wrong tile
+          this.subtractScore();
+        }
+      }
+      
+      // next tile
+      this.clearHighlight();
+      this.highlightTile();
+    }
+    */
+
+  /*TileGame.prototype.clearHighlight = function(){
+    var oHighlighed = this.oDomContainer.querySelector(".highlighted-tile");
+    if(oHighlighed){
+     oHighlighed.className = "tile"; 
+    }
+  }
+  
+  /*TileGame.prototype.highlightTile = function(){
+     var iSize = this.size;
+     // Generate random number between 1 to (iSize*iSize)
+     var iRandom = Math.round((Math.random()*100 % (iSize*iSize)) + 1);
+     this.oDomContainer.querySelector(".tile:nth-of-type("+iRandom+")").className = 'highlighted-tile';
+  };
+  */
+  TileGame.prototype.generateTiles = function() {
+    var oContainer = this.oDomContainer;
+    oContainer.className = this.difficulty;
+    var oDummyContainer = document.createElement("div");
+    var iSize = this.size * this.size; 
+    //console.log(iSize);
+    for (var iIndex = 0; iIndex < iSize; iIndex++) {
+      var oTile = document.createElement("div"); 
+      oTile.className = "tile";
+      oTile.tabIndex = iIndex;
+      oDummyContainer.appendChild(oTile); 
+    }
+    //function showName()
+    //oDummyContainer.addEventListener('click',showName,false);
+    oContainer.innerHTML = oDummyContainer.innerHTML;
+  };
+  
+  TileGame.prototype.getScoreBoard = function(){
+     var oScoreBoard = document.createElement("div");
+     oScoreBoard.className = 'scoreBoard';
+     this.scoreBoard = oScoreBoard;
+    return this.scoreBoard;
+  };
+  
+  TileGame.prototype.generateUIComponents = function(){
+    this.oDomContainer.appendChild(this.getScoreBoard());
+  }
+  
+  // Start new game
+  new TileGame(document.querySelector("#gameContainer"), "easy");
+
+function func(){
+  console.log("yo");
+  const socket = io();
+  socket.emit('play');
+
+  socket.on('update_status',(data)=>{
+    //console.log(data['x']);
+    //console.log(data['y']);
+    let a = data['x']*5+data['y'];
+    /*let elements = document.getElementsByClassName("div");
+    Array.from(elements).forEach(function (element) {
+        console.log("hey");
+        if(elemets.tabIndex==a){
+          console.log(elements.tabIndex);
+          element.className = 'highlighted-tile1';
+        }
+    */
+   console.log(a);
+
+   //document.querySelector(".tile:nth-of-type("+a+")").className = 'highlighted-tile1';
+})
+}
+  </script>
+<!--script src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-2c7831bb44f98c1391d6a4ffda0e1fd302503391ca806e7fcc7b9b87197aec26.js"></script>
+  <script  src="https://cdpn.io/cpe/boomboom/pen.js?key=pen.js-dcb515c7-0f13-7011-1908-f0f9fd7e86ee" crossorigin></script-->
+
+
